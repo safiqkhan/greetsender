@@ -74,7 +74,7 @@ function sendEmail(inputRecipient) {
       "Warmest wishes,😊\n";
       
     // MailApp.sendEmail(to, replyTo, subject, body)
-    emailBody += getName(getuser()) || getuser() ;
+    emailBody += getName(getuser()) +'\n'+ getuser() ;
     if (inputRecipient) {
       // Check if a valid email is provided
       if (!isValidEmail(inputRecipient)) {
