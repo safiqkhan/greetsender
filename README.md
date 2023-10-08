@@ -1,4 +1,4 @@
-Access [https://bit.ly/greetsend](https://bit.ly/greetsent) or [https://script.google.com/macros/s/AKfycbxtvqmDKWG2VkK7eSx3kM2ryCAT68cpuXVn4xczDWAgMM4amzx0FvKrEUxUWcShBl-K/exec](https://script.google.com/macros/s/AKfycbwsKhP5AdI0jrS2V8VKNBPtRR8f4r0X8MvjvI214wWl51hlS6N9G_iwZsidJHZNpLOO/exec)
+Access [https://bit.ly/greetsent](https://bit.ly/greetsent) or https://script.google.com/macros/s/AKfycbwsKhP5AdI0jrS2V8VKNBPtRR8f4r0X8MvjvI214wWl51hlS6N9G_iwZsidJHZNpLOO/exec
 to execute in scripts google webapp
 
 # greetsender
