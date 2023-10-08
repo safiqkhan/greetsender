@@ -9,7 +9,7 @@ function getuser() {
   var email = Session.getActiveUser().getEmail();
   return email;
 }
-function sendEmail(inputRecipient) {
+function sendEmail(inputRecipient, getBody) {
   // Define the list of recipient email addresses and names as an object
   var recipients = {
     'khanjordan440@gmail.com': '',
@@ -55,6 +55,9 @@ function sendEmail(inputRecipient) {
     if (inputRecipient) {
       var name = getName(inputRecipient) || 'Friend' ;
     }
+    else if(getBody){
+      var name = getName(getuser()) || getuser();
+    }
     else {
       var name = recipientName || getName(recipientEmail);
     }
@@ -92,6 +95,10 @@ function sendEmail(inputRecipient) {
         }
       }
     }
+    else if (getBody) {
+      Logger.log("Here is your Greet body\n\n"+ emailBody);
+      return emailBody;
+    }
     else {
       try {
         MailApp.sendEmail(recipientEmail, subject, emailBody);
@@ -99,7 +106,7 @@ function sendEmail(inputRecipient) {
         return 'Greet emails sent successfully\n' + 'Here is the email body:\n' + emailBody;
       } catch(error) {
         console.error("Error Sending a mail: " + error + '\nHere is the email body:\n' + emailBody);
-        return 'Email sending failed due to insufficient remaining email quota'+ inputRecipient + '\nHere is the email body:\n' + emailBody;
+        return 'Email sending failed due to insufficient remaining email quota'+ '\nHere is the email body:\n' + emailBody;
       }
     }
     debugger;
