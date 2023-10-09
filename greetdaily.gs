@@ -1,6 +1,5 @@
 // Send daily emails with positive messages, jokes, fun facts, and quotes to a list of recipients.
 function doGet(e) {
-  var email = Session.getActiveUser().getEmail();
   return HtmlService.createHtmlOutputFromFile('index')
     .setTitle('Daily Email Sender')
     .setSandboxMode(HtmlService.SandboxMode.IFRAME);
@@ -30,86 +29,101 @@ function sendEmail(inputRecipient, getBody) {
     'mdkutubuddin33@gmail.com',
     'safiquddinkhan@gmail.com',
   ];
-
+  var ccAddresses = [];
+  var successFlag = false; 
+  apiUrl1 = "https://v2.jokeapi.dev/joke/Any?format=txt";
+  apiUrl2 = "https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,sexist&format=txt";
+  emailid = "safiquddinkhan@gmail.com";
+  var dayOfWeek = getDayOfWeek();
+  var isHoliday = getHolidayInfo().isHoliday;
+  var holidayName = getHolidayInfo().holidayName;
   // Subject of the email
-  var subject = getTimeOfDay() + ", It's " + getDayOfWeek();
-
+  var subject = getTimeOfDay() + ", It's " + dayOfWeek;
   // Loop through the recipients object and send an email to each recipient
   for (var recipientEmail in recipients) {
+    if (!isValidEmail(recipientEmail)) {
+      console.log("Invalid email address "+ recipientEmail);
+      // return 'Invalid email address';
+      continue;
+    }
     var recipientName = recipients[recipientEmail];
-    var dayOfWeek = getDayOfWeek();
     var englishJoke = getEnglishJoke(recipientEmail);
-    // Determine whether to send a custom joke or a Hindi joke based on the recipient's email address
-    var joke;
-    var probability = Math.random() < 0.5; // 50% chance of including an English joke
-    // check recipientEmail or inputRecipient in the hindirecipients
-    if (hindirecipients.includes(recipientEmail) || (inputRecipient && hindirecipients.includes(inputRecipient))) {
-      var apiUrl = "https://v2.jokeapi.dev/joke/Any?format=txt";
-      joke = probability ? getCustomJoke(apiUrl) : getHindiJoke(); // Randomly select a joke
-    } else { 
-      // Send a custom joke for others
-      var apiUrl = "https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,sexist&format=txt";
-      joke = getCustomJoke(apiUrl);
-    }
-    daymessage = probability ? dayMessages[dayOfWeek] : dayFun[dayOfWeek] ;
-    if (inputRecipient) {
-      var name = getName(inputRecipient) || 'Friend' ;
-    }
-    else if(getBody){
-      var name = getName(getuser()) || getuser();
-    }
-    else {
+    // if (!inputRecipient && !getBody) {
+    if (successFlag === false) {
       var name = recipientName || getName(recipientEmail);
     }
-    var holidayInfo = getHolidayInfo();
-    var isHoliday = holidayInfo.isHoliday;
-    var holidayName = holidayInfo.holidayName;
-    var emailBody = "Dear " + name + ",\n\n" +
-      (isHoliday ? ("Today is a holiday in India:" + holidayName + "\n") : (daymessage || "Have a good day!")) + "\n\n" +
-      "Here's to another day of laughter, love, and making wonderful memories together as a family ❤️.\n\n" +
-      "As the sun rises, may your heart be light, and your smile be bright. 🌟\n\n" +
-      "Here's a joke to start your day with a chuckle:\n" + englishJoke + "\n\n" +
-      "And here's another one just for fun:\n" + joke + "\n\n" +
-      "Did you know? 🤓\n" + getFunFact() + "\n\n" +
-      "Your daily dose of inspiration: 📖 \n" + getQuote() + "\n\n" +
-      "Always remember, you're amazing and appreciated every single day. 🎉\n" +
-      "Take care of yourself and make today an incredible one! 🌞\n\n" +
-      "Warmest wishes,😊\n";
-      
-    // MailApp.sendEmail(to, replyTo, subject, body)
-    emailBody += getName(getuser()) +'\n'+ getuser() ;
-    if (inputRecipient) {
-      // Check if a valid email is provided
-      if (!isValidEmail(inputRecipient)) {
-        Logger.log("Invalid email address "+ inputRecipient);
-        return 'Invalid email address';
+    else if(inputRecipient){
+      var name = getName(inputRecipient) || 'Friend' ;
+    }
+    else if (getBody){
+      name = getName(getuser()) || getuser();
+    }
+    else {
+      name ='Friend';
+    }
+    var probability = Math.random() < 0.5; // 50% chance of including an English joke
+    var daymessage = probability ? dayMessages[dayOfWeek] : dayFun[dayOfWeek];
+    // check recipientEmail or inputRecipient in the hindirecipients
+    if (hindirecipients.includes(recipientEmail) || (inputRecipient && hindirecipients.includes(inputRecipient))) {
+    var joke = probability ? getCustomJoke(apiUrl1) : getHindiJoke(); // Randomly select a joke
+    } else { 
+    var joke = getCustomJoke(apiUrl2); // Send a custom joke for others
+    }
+    var emailBody = "Dear " + name + ",\n\n";
+    if (isHoliday) {
+    emailBody += "Today is a holiday in India: " + holidayName + "\n\n";
+    } else {
+    emailBody += (daymessage || "Have a good day!") + "\n\n";
+    }
+    emailBody += "Here's to another day of laughter, love, and making wonderful memories together as a family ❤️.\n\n" +
+    "As the sun rises, may your heart be light, and your smile be bright. 🌟\n\n" +
+    "Here's a joke to start your day with a chuckle:\n" + englishJoke + "\n\n" +
+    "And here's another one just for fun:\n" + joke + "\n\n" +
+    "Did you know? 🤓\n" + getFunFact() + "\n\n" +
+    "Your daily dose of inspiration: 📖 \n" + getQuote() + "\n\n" +
+    "Always remember, you're amazing and appreciated every single day. 🎉\n" +
+    "Take care of yourself and make today an incredible one! 🌞\n\n" +
+    "Warmest wishes,😊\n";
+    if (successFlag === false) {
+      try {
+        emailBody += 'Safiquddin Khan';
+        //MailApp.sendEmail(inputRecipient, subject, emailBody);
+        ccAddresses.push(recipientEmail);
+        successFlag = true;
+      } catch (error) {
+        console.error("Error Sending a mail: " + error + '\nHere is the email body:\n' + emailBody);
       }
-      else {
-        try {
-          MailApp.sendEmail(inputRecipient, subject, emailBody);
-          Logger.log("Email sent successfully \n\n"+ emailBody);
-          return 'Greet email sent successfully to: '+ inputRecipient + '\nHere is the email body:\n' + emailBody;
-        } catch (error) {
-          console.error("Error Sending a mail: " + error + '\nHere is the email body:\n' + emailBody);
-          return 'Email sending to ' + inputRecipient + ' failed due to insufficient remaining email quota\nHere is the email body:\n' + emailBody;
+    }
+    else if (inputRecipient) {
+      try {
+        if (getuser() === 'safiquddinkhan@gmail.com') {
+          emailBody += 'Safiquddin Khan';
+        } else if (getuser()) {
+          emailBody += getName(getuser()) +'\n'+ getuser();
         }
+        else { emailBody += "Friend";}
+        MailApp.sendEmail(recipientEmail, subject, emailBody);
+        ccAddresses.push(recipientEmail);
+        successFlag = true;
+        console.log("Email sent successfully to:" + recipientEmail  + '\nHere is the email body:\n' + emailBody);
+      } catch(error) {
+        console.error("Error Sending a mail: " + error + '\nHere is the email body:\n' + emailBody);
       }
     }
     else if (getBody) {
-      Logger.log("Here is your Greet body\n\n"+ emailBody);
+      emailBody += getName(getuser());
+      Logger.log("Here is your Greet body:\n\n"+ emailBody);
       return emailBody;
     }
-    else {
-      try {
-        MailApp.sendEmail(recipientEmail, subject, emailBody);
-        Logger.log("Email sent successfully \n\n"+ emailBody);
-        return 'Greet emails sent successfully\n' + 'Here is the email body:\n' + emailBody;
-      } catch(error) {
-        console.error("Error Sending a mail: " + error + '\nHere is the email body:\n' + emailBody);
-        return 'Email sending failed due to insufficient remaining email quota'+ '\nHere is the email body:\n' + emailBody;
-      }
-    }
     debugger;
+  }
+  var ccAddresseslist = ccAddresses.join('\n');
+  if (successFlag) {
+    Logger.log("Email sent successfully to:" + ccAddresseslist + '\n\nHere is the email body:\n\n' + emailBody);
+    // return("Email sent successfully to:" + ccAddresseslist + '\n\nHere is the email body:\n\n' + emailBody);
+  } else {
+    Logger.log('Error Sending Emails' );
+    // return ('Error Sending Emails' );
   }
 }
 
@@ -118,6 +132,20 @@ function isValidEmail(email) {
   var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
   return emailRegex.test(email);
 }
+
+function getName(emailid) {
+  if (!isValidEmail(emailid)) {
+    // return 'invalidEmail'; 
+    Logger.log('invalidgetName')
+  }
+  var name = emailid.split("@")[0]; // Get the part before the @ symbol
+  name = name.replace(/[0-9]+/g, ''); // Remove any numbers
+  name = name.replace(/[^a-zA-Z ]/g, ''); // Remove any special characters
+  name = name.trim(); // Remove leading and trailing spaces
+  name = name.charAt(0).toUpperCase() + name.slice(1); // Capitalize the first letter
+  return name;
+}
+
 
 function getEnglishJoke(recipient) {
   try {
@@ -183,14 +211,6 @@ function getQuote() {
   }
 }
 
-function getName(email) {
-  var name = email.split("@")[0]; // Get the part before the @ symbol
-  name = name.replace(/[0-9]+/g, ''); // Remove any numbers
-  name = name.replace(/[^a-zA-Z ]/g, ''); // Remove any special characters
-  name = name.trim(); // Remove leading and trailing spaces
-  name = name.charAt(0).toUpperCase() + name.slice(1); // Capitalize the first letter
-  return name;
-}
 
 var dayMessages = {
   'Sunday': 'Wishing you a relaxing and peaceful Sunday.',
@@ -233,7 +253,7 @@ function getTimeOfDay() {
 // https://holidayapi.com/fee77042-0325-4296-b257-d2e728641779
 function getHolidayInfo() {
   try {
-    var apiKey = '7uw04uwMQUEGctUmIDhBYhJCeuQo3vP7'; // Replace with your Calendarific API key
+    var apiKey = 'smff3hYqk4Plombur6GrHzpYxQr452sqs'; // Replace with your Calendarific API key
     var year = new Date().getFullYear();
     var apiUrl = 'https://calendarific.com/api/v2/holidays?api_key='+ apiKey + '&country=IN&year=' + year;
     var response = UrlFetchApp.fetch(apiUrl);
@@ -250,8 +270,8 @@ function getHolidayInfo() {
     }
     return { isHoliday: false, holidayName: "" };
   } catch (error) {
-    console.error('Error fetching Indian holidays: ' + error);
-    return { isHoliday: false, holidayName: "" };
+    //console.error('Error fetching Indian holidays: ' + error);
+    return "Can't fetch isHoliday";
   }
 }
 
@@ -261,3 +281,10 @@ function getQuotaRemaining() {
   Logger.log("Remaining email quota: " + emailQuotaRemaining);
   return 'Remaining email quota:' + emailQuotaRemaining;
 }
+// MailApp.sendEmail({
+//   to: inputRecipient,
+//   cc: ccAddresses.join(','), // Use join(',') to convert the array to a comma-separated string
+//   replyTo: replyTo, // Specify the reply-to address here
+//   subject: subject,
+//   body: emailBody
+// });
