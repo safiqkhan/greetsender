@@ -86,7 +86,7 @@ function sendEmail(inputRecipient, getBody) {
       } else {
         emailBody += (recipients[getuser()] || getName(getuser())) + '\n' + getuser();
       }
-      //MailApp.sendEmail(recipientEmail, subject, emailBody);
+      MailApp.sendEmail(recipientEmail, subject, emailBody);
       ccAddresses.push(recipientEmail);
       successFlag = true;
       console.log("Email sent successfully to: " + recipientEmail + '\nHere is the email body:\n' + emailBody);
