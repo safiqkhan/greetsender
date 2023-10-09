@@ -51,7 +51,7 @@ function sendEmail(inputRecipient, getBody) {
     var name = 'Friend';  // Declare the name variable outside of the if-else block
     // if (!inputRecipient && !getBody) {
     name = recipientName || getName(recipientEmail) || name;
-    // } else if (inputRecipient) {
+    // if (inputRecipient) {
     //   name = recipients[inputRecipient] || getName(inputRecipient) || name;
     // } else if (getBody) {
     //   name = recipients[getuser()] || getName(getuser()) || getuser();
@@ -79,13 +79,13 @@ function sendEmail(inputRecipient, getBody) {
     "Always remember, you're amazing and appreciated every single day. 🎉\n" +
     "Take care of yourself and make today an incredible one! 🌞\n\n" +
     "Warmest wishes,😊\n";
+    if (getuser() === 'safiquddinkhan@gmail.com') {
+      emailBody += 'Safiquddin Khan';
+    } else {
+      emailBody += (recipients[getuser()] || getName(getuser())) + '\n' + getuser();
+    }
     // if (!inputRecipient && !getBody) {
     try {
-      if (getuser() === 'safiquddinkhan@gmail.com') {
-        emailBody += 'Safiquddin Khan';
-      } else {
-        emailBody += (recipients[getuser()] || getName(getuser())) + '\n' + getuser();
-      }
       MailApp.sendEmail(recipientEmail, subject, emailBody);
       ccAddresses.push(recipientEmail);
       successFlag = true;
@@ -94,14 +94,9 @@ function sendEmail(inputRecipient, getBody) {
       console.error("Error Sending a mail: " + error + '\nHere is the email body:\n' + emailBody);
     }
     // }
-    // else if (inputRecipient) {
+    // if (inputRecipient) {
     //   try {
-    //     if (getuser() === 'safiquddinkhan@gmail.com') {
-    //       emailBody += 'Safiquddin Khan';
-    //     } else {
-    //       emailBody += (recipients[getuser()] || getName(getuser())) + '\n' + getuser();
-    //     }
-    //     MailApp.sendEmail(inputRecipient, subject, emailBody);
+    //     //MailApp.sendEmail(inputRecipient, subject, emailBody);
     //     ccAddresses.push(inputRecipient);
     //     successFlag = true;
     //     console.log("Email sent successfully to: " + inputRecipient + '\nHere is the email body:\n' + emailBody);
@@ -110,11 +105,6 @@ function sendEmail(inputRecipient, getBody) {
     //   }
     // } 
     // else if (getBody) {
-    //   if (getuser() === 'safiquddinkhan@gmail.com') {
-    //     emailBody += 'Safiquddin Khan';
-    //   } else {
-    //     emailBody += (recipients[getuser()] || getName(getuser())) + '\n' + getuser();
-    //   }
     //   console.log("Here is your Greet body:\n\n" + emailBody);
     //   return emailBody;
     // }
@@ -256,7 +246,7 @@ function getTimeOfDay() {
 // https://holidayapi.com/fee77042-0325-4296-b257-d2e728641779
 function getHolidayInfo() {
   try {
-    var apiKey = 'smff3hYqk4Plombur6GrHzpYxQr452sqs'; // Replace with your Calendarific API key
+    var apiKey = 'smff3hYqk4Plombur6GrHzpYxQr452sq'; // Replace with your Calendarific API key
     var year = new Date().getFullYear();
     var apiUrl = 'https://calendarific.com/api/v2/holidays?api_key='+ apiKey + '&country=IN&year=' + year;
     var response = UrlFetchApp.fetch(apiUrl);
