@@ -49,20 +49,20 @@ function sendEmail(inputRecipient, getBody) {
     var recipientName = recipients[recipientEmail];
     var englishJoke = getEnglishJoke(recipientEmail);
     var name = 'Friend';  // Declare the name variable outside of the if-else block
-    if (!inputRecipient && !getBody) {
-      name = recipientName || getName(recipientEmail) || name;
-    } else if (inputRecipient) {
-      name = recipients[getuser()] || getName(inputRecipient) || name;
-    } else if (getBody) {
-      name = recipients[getuser()] || getName(getuser()) || getuser();
-    }
+    // if (!inputRecipient && !getBody) {
+    name = recipientName || getName(recipientEmail) || name;
+    // } else if (inputRecipient) {
+    //   name = recipients[inputRecipient] || getName(inputRecipient) || name;
+    // } else if (getBody) {
+    //   name = recipients[getuser()] || getName(getuser()) || getuser();
+    // } else {return name;}
     var probability = Math.random() < 0.5; // 50% chance of including an English joke
     var daymessage = probability ? dayMessages[dayOfWeek] : dayFun[dayOfWeek];
     // check recipientEmail or inputRecipient in the hindirecipients
     if (hindirecipients.includes(recipientEmail) || (inputRecipient && hindirecipients.includes(inputRecipient))) {
-    var joke = probability ? getCustomJoke(apiUrl1) : getHindiJoke(); // Randomly select a joke
+      var joke = probability ? getCustomJoke(apiUrl1) : getHindiJoke(); // Randomly select a joke
     } else { 
-    var joke = getCustomJoke(apiUrl2); // Send a custom joke for others
+      var joke = getCustomJoke(apiUrl2); // Send a custom joke for others
     }
     var emailBody = "Dear " + name + ",\n\n";
     if (isHoliday) {
@@ -79,51 +79,54 @@ function sendEmail(inputRecipient, getBody) {
     "Always remember, you're amazing and appreciated every single day. 🎉\n" +
     "Take care of yourself and make today an incredible one! 🌞\n\n" +
     "Warmest wishes,😊\n";
-    if (!inputRecipient && !getBody) {
-      try {
-        emailBody += 'Safiquddin Khan';
-        //MailApp.sendEmail(inputRecipient, subject, emailBody);
-        ccAddresses.push(recipientEmail);
-        successFlag = true;
-      } catch (error) {
-        console.error("Error Sending a mail: " + error + '\nHere is the email body:\n' + emailBody);
-      }
-    }
-    else if (inputRecipient) {
-      try {
-        if (getuser() === 'safiquddinkhan@gmail.com') {
-          emailBody += 'Safiquddin Khan';
-        } else if (getuser()){
-          emailBody += getName(getuser()) +'\n'+ getuser();
-        } else {emailBody += 'anonymous';}
-        emailBody += getName(getuser()) +'\n'+ getuser();
-        MailApp.sendEmail(recipientEmail, subject, emailBody);
-        ccAddresses.push(recipientEmail);
-        successFlag = true;
-        console.log("Email sent successfully to:" + recipientEmail  + '\nHere is the email body:\n' + emailBody);
-      } catch(error) {
-        console.error("Error Sending a mail: " + error + '\nHere is the email body:\n' + emailBody);
-      }
-    }
-    else if (getBody) {
+    // if (!inputRecipient && !getBody) {
+    try {
       if (getuser() === 'safiquddinkhan@gmail.com') {
         emailBody += 'Safiquddin Khan';
-      } else if (getuser()){
-        emailBody += getName(getuser()) +'\n'+ getuser();
-      } else {emailBody += 'anonymous';}
-      emailBody += getName(getuser()) +'\n'+ getuser();
-      Logger.log("Here is your Greet body:\n\n"+ emailBody);
-      return emailBody;
+      } else {
+        emailBody += (recipients[getuser()] || getName(getuser())) + '\n' + getuser();
+      }
+      //MailApp.sendEmail(recipientEmail, subject, emailBody);
+      ccAddresses.push(recipientEmail);
+      successFlag = true;
+      console.log("Email sent successfully to: " + recipientEmail + '\nHere is the email body:\n' + emailBody);
+    } catch (error) {
+      console.error("Error Sending a mail: " + error + '\nHere is the email body:\n' + emailBody);
     }
+    // }
+    // else if (inputRecipient) {
+    //   try {
+    //     if (getuser() === 'safiquddinkhan@gmail.com') {
+    //       emailBody += 'Safiquddin Khan';
+    //     } else {
+    //       emailBody += (recipients[getuser()] || getName(getuser())) + '\n' + getuser();
+    //     }
+    //     MailApp.sendEmail(inputRecipient, subject, emailBody);
+    //     ccAddresses.push(inputRecipient);
+    //     successFlag = true;
+    //     console.log("Email sent successfully to: " + inputRecipient + '\nHere is the email body:\n' + emailBody);
+    //   } catch (error) {
+    //     console.error("Error Sending an email: " + error + '\nHere is the email body:\n' + emailBody);
+    //   }
+    // } 
+    // else if (getBody) {
+    //   if (getuser() === 'safiquddinkhan@gmail.com') {
+    //     emailBody += 'Safiquddin Khan';
+    //   } else {
+    //     emailBody += (recipients[getuser()] || getName(getuser())) + '\n' + getuser();
+    //   }
+    //   console.log("Here is your Greet body:\n\n" + emailBody);
+    //   return emailBody;
+    // }
     debugger;
   }
   var ccAddresseslist = ccAddresses.join('\n');
   if (successFlag) {
     Logger.log("Email sent successfully to:" + ccAddresseslist + '\n\nHere is the email body:\n\n' + emailBody);
-    // return("Email sent successfully to:" + ccAddresseslist + '\n\nHere is the email body:\n\n' + emailBody);
+    return("Email sent successfully to:" + ccAddresseslist + '\n\nHere is the email body:\n\n' + emailBody);
   } else {
-    Logger.log('Error Sending Emails' );
-    // return ('Error Sending Emails' );
+    Logger.log('Error Sending Email' );
+    return ('Error Sending Email' );
   }
 }
 
@@ -135,8 +138,8 @@ function isValidEmail(email) {
 
 function getName(emailid) {
   if (!isValidEmail(emailid)) {
-    // return 'invalidEmail'; 
-    Logger.log('invalidgetName')
+    return 'invalidEmail'; 
+    // Logger.log('invalidgetName')
   }
   var name = emailid.split("@")[0]; // Get the part before the @ symbol
   name = name.replace(/[0-9]+/g, ''); // Remove any numbers
