@@ -48,8 +48,7 @@ function sendEmail(inputRecipient, getBody) {
     }
     var recipientName = recipients[recipientEmail];
     var englishJoke = getEnglishJoke(recipientEmail);
-    // if (!inputRecipient && !getBody) {
-    if (successFlag === false) {
+    if (!inputRecipient && !getBody) {
       var name = recipientName || getName(recipientEmail);
     }
     else if(inputRecipient){
@@ -84,7 +83,7 @@ function sendEmail(inputRecipient, getBody) {
     "Always remember, you're amazing and appreciated every single day. 🎉\n" +
     "Take care of yourself and make today an incredible one! 🌞\n\n" +
     "Warmest wishes,😊\n";
-    if (successFlag === false) {
+    if (!inputRecipient && !getBody) {
       try {
         emailBody += 'Safiquddin Khan';
         //MailApp.sendEmail(inputRecipient, subject, emailBody);
@@ -96,12 +95,7 @@ function sendEmail(inputRecipient, getBody) {
     }
     else if (inputRecipient) {
       try {
-        if (getuser() === 'safiquddinkhan@gmail.com') {
-          emailBody += 'Safiquddin Khan';
-        } else if (getuser()) {
-          emailBody += getName(getuser()) +'\n'+ getuser();
-        }
-        else { emailBody += "Friend";}
+        emailBody += getName(getuser()) +'\n'+ getuser();
         MailApp.sendEmail(recipientEmail, subject, emailBody);
         ccAddresses.push(recipientEmail);
         successFlag = true;
@@ -111,7 +105,7 @@ function sendEmail(inputRecipient, getBody) {
       }
     }
     else if (getBody) {
-      emailBody += getName(getuser());
+      emailBody += getName(getuser()) +'\n'+ getuser();
       Logger.log("Here is your Greet body:\n\n"+ emailBody);
       return emailBody;
     }
