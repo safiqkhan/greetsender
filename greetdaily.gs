@@ -48,17 +48,13 @@ function sendEmail(inputRecipient, getBody) {
     }
     var recipientName = recipients[recipientEmail];
     var englishJoke = getEnglishJoke(recipientEmail);
+    var name = 'Friend';  // Declare the name variable outside of the if-else block
     if (!inputRecipient && !getBody) {
-      var name = recipientName || getName(recipientEmail);
-    }
-    else if(inputRecipient){
-      var name = getName(inputRecipient) || 'Friend' ;
-    }
-    else if (getBody){
-      name = getName(getuser()) || getuser();
-    }
-    else {
-      name ='Friend';
+      name = recipientName || getName(recipientEmail) || name;
+    } else if (inputRecipient) {
+      name = recipients[getuser()] || getName(inputRecipient) || name;
+    } else if (getBody) {
+      name = recipients[getuser()] || getName(getuser()) || getuser();
     }
     var probability = Math.random() < 0.5; // 50% chance of including an English joke
     var daymessage = probability ? dayMessages[dayOfWeek] : dayFun[dayOfWeek];
@@ -95,6 +91,11 @@ function sendEmail(inputRecipient, getBody) {
     }
     else if (inputRecipient) {
       try {
+        if (getuser() === 'safiquddinkhan@gmail.com') {
+          emailBody += 'Safiquddin Khan';
+        } else if (getuser()){
+          emailBody += getName(getuser()) +'\n'+ getuser();
+        } else {emailBody += 'anonymous';}
         emailBody += getName(getuser()) +'\n'+ getuser();
         MailApp.sendEmail(recipientEmail, subject, emailBody);
         ccAddresses.push(recipientEmail);
@@ -105,6 +106,11 @@ function sendEmail(inputRecipient, getBody) {
       }
     }
     else if (getBody) {
+      if (getuser() === 'safiquddinkhan@gmail.com') {
+        emailBody += 'Safiquddin Khan';
+      } else if (getuser()){
+        emailBody += getName(getuser()) +'\n'+ getuser();
+      } else {emailBody += 'anonymous';}
       emailBody += getName(getuser()) +'\n'+ getuser();
       Logger.log("Here is your Greet body:\n\n"+ emailBody);
       return emailBody;
