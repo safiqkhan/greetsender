@@ -39,6 +39,8 @@ function sendEmail(inputRecipient, getBody) {
   var holidayName = getHolidayInfo().holidayName;
   // Subject of the email
   var subject = getTimeOfDay() + ", It's " + dayOfWeek;
+  var name = 'Friend';
+  var emailBody = '';
   // Loop through the recipients object and send an email to each recipient
   for (var recipientEmail in recipients) {
     if (!isValidEmail(recipientEmail)) {
@@ -48,14 +50,6 @@ function sendEmail(inputRecipient, getBody) {
     }
     var recipientName = recipients[recipientEmail];
     var englishJoke = getEnglishJoke(recipientEmail);
-    var name = 'Friend';  // Declare the name variable outside of the if-else block
-    // if (!inputRecipient && !getBody) {
-    name = recipientName || getName(recipientEmail) || name;
-    // if (inputRecipient) {
-    //   name = recipients[inputRecipient] || getName(inputRecipient) || name;
-    // } else if (getBody) {
-    //   name = recipients[getuser()] || getName(getuser()) || getuser();
-    // } else {return name;}
     var probability = Math.random() < 0.5; // 50% chance of including an English joke
     var daymessage = probability ? dayMessages[dayOfWeek] : dayFun[dayOfWeek];
     // check recipientEmail or inputRecipient in the hindirecipients
@@ -64,7 +58,14 @@ function sendEmail(inputRecipient, getBody) {
     } else { 
       var joke = getCustomJoke(apiUrl2); // Send a custom joke for others
     }
-    var emailBody = "Dear " + name + ",\n\n";
+    if (!inputRecipient && !getBody) {
+    name = (recipientName || getName(recipientEmail)) || name;
+    } else if (inputRecipient) {
+      name = (recipients[inputRecipient] || getName(inputRecipient)) || name;
+    } else if (getBody) {
+      name = (recipients[getuser()] || getName(getuser())) || getuser();
+    } else {return name;}
+    emailBody = "Dear " + name + ",\n\n";
     if (isHoliday) {
     emailBody += "Today is a holiday in India: " + holidayName + "\n\n";
     } else {
@@ -84,31 +85,31 @@ function sendEmail(inputRecipient, getBody) {
     } else {
       emailBody += (recipients[getuser()] || getName(getuser())) + '\n' + getuser();
     }
-    // if (!inputRecipient && !getBody) {
-    try {
-      MailApp.sendEmail(recipientEmail, subject, emailBody);
-      ccAddresses.push(recipientEmail);
-      successFlag = true;
-      console.log("Email sent successfully to: " + recipientEmail + '\nHere is the email body:\n' + emailBody);
-    } catch (error) {
-      console.error("Error Sending a mail: " + error + '\nHere is the email body:\n' + emailBody);
+    if (!inputRecipient && !getBody) {
+      try {
+        MailApp.sendEmail(recipientEmail, subject, emailBody);
+        ccAddresses.push(recipientEmail);
+        successFlag = true;
+        console.log("Email sent successfully to: " + recipientEmail + '\nHere is the email body:\n' + emailBody);
+      } catch (error) {
+        console.error("Error Sending a mail: " + error + '\nHere is the email body:\n' + emailBody);
+      }
     }
-    // }
-    // if (inputRecipient) {
-    //   try {
-    //     //MailApp.sendEmail(inputRecipient, subject, emailBody);
-    //     ccAddresses.push(inputRecipient);
-    //     successFlag = true;
-    //     console.log("Email sent successfully to: " + inputRecipient + '\nHere is the email body:\n' + emailBody);
-    //   } catch (error) {
-    //     console.error("Error Sending an email: " + error + '\nHere is the email body:\n' + emailBody);
-    //   }
-    // } 
-    // else if (getBody) {
-    //   console.log("Here is your Greet body:\n\n" + emailBody);
-    //   return emailBody;
-    // }
     debugger;
+  }
+  if (inputRecipient) {
+    try {
+      MailApp.sendEmail(inputRecipient, subject, emailBody);
+      ccAddresses.push(inputRecipient);
+      successFlag = true;
+      console.log("Email sent successfully to: " + inputRecipient + '\nHere is the email body:\n' + emailBody);
+    } catch (error) {
+      console.error("Error Sending an email: " + error + '\nHere is the email body:\n' + emailBody);
+    }
+  }
+  else if (getBody) {
+    console.log("Here is your Greet body:\n\n" + emailBody);
+    return emailBody;
   }
   var ccAddresseslist = ccAddresses.join('\n');
   if (successFlag) {
@@ -128,7 +129,7 @@ function isValidEmail(email) {
 
 function getName(emailid) {
   if (!isValidEmail(emailid)) {
-    return 'invalidEmail'; 
+    return 'Invalid User'; 
     // Logger.log('invalidgetName')
   }
   var name = emailid.split("@")[0]; // Get the part before the @ symbol
@@ -204,7 +205,6 @@ function getQuote() {
   }
 }
 
-
 var dayMessages = {
   'Sunday': 'Wishing you a relaxing and peaceful Sunday.',
   'Monday': 'Start your week with enthusiasm and determination. Happy Monday!',
@@ -216,13 +216,13 @@ var dayMessages = {
 };
 
 var dayFun = {
-  'Sunday': 'Happy Monday!',
-  'Monday': 'Terrific Tuesday!',
-  'Tuesday': 'Wonderful Wednesday!',
-  'Wednesday': 'Thrilling Thursday!',
-  'Thursday': 'Fantastic Friday!',
-  'Friday': 'Super Saturday!',
-  'Saturday': 'Sunny Sunday!',
+  'Sunday': 'Sunny Sunday!',
+  'Monday': 'Happy Monday!',
+  'Tuesday': 'Terrific Tuesday!',
+  'Wednesday': 'Wonderful Wednesday!',
+  'Thursday': 'Thrilling Thursday!',
+  'Friday': 'Fantastic Friday!',
+  'Saturday': 'Super Saturday!'
 };
 
   // Function to get the current day of the week
