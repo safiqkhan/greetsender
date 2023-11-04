@@ -12,21 +12,10 @@ function sendEmail(inputRecipient, getBody) {
   // Define the list of recipient email addresses and names as an object
   var recipients = {
     'khanjordan440@gmail.com': '',
-    'khangayasuddin99@gmail.com': 'Gayasuddin Khan',
-    'rajutarannum143@gmail.com': 'MD Shamshad',
-    'banumuskaan998@gmail.com': 'Muskaan Banu',
-    'khatunsahara77@gmail.com': 'Sahara Khatun',
-    'mdkutubuddin33@gmail.com': 'MD Kutubuddin',
-    'tabassumsheikh2708@gmail.com': 'Tabassum Nisha',
-    'realshad07@gmail.com': 'Shad Perwez',
     'safiquddinkhan@gmail.com': 'Safiquddin Khan',
   };
   // Define the list of recipients for whom you want to send Hindi jokes
   var hindirecipients = [
-    'khanjordan440@gmail.com',
-    'banumuskaan998@gmail.com',
-    'realshad07@gmail.com',
-    'mdkutubuddin33@gmail.com',
     'safiquddinkhan@gmail.com',
   ];
   var ccAddresses = [];
@@ -246,7 +235,7 @@ function getTimeOfDay() {
 // https://holidayapi.com/fee77042-0325-4296-b257-d2e728641779
 function getHolidayInfo() {
   try {
-    var apiKey = 'smff3hYqk4Plombur6GrHzpYxQr452sq'; // Replace with your Calendarific API key
+    var apiKey = 'smff3hYqk4Plombur6GrHzpYxQr452sqs'; // Replace with your Calendarific API key
     var year = new Date().getFullYear();
     var apiUrl = 'https://calendarific.com/api/v2/holidays?api_key='+ apiKey + '&country=IN&year=' + year;
     var response = UrlFetchApp.fetch(apiUrl);
