@@ -6,6 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Greet Mail Sender</title>
+  <link rel="icon" type="image/png" href="https://drive.google.com/uc?id=19dujpeIWXbtl1OyoKbUduLpIDoHDbxDi">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <style>
     body {
@@ -77,6 +78,11 @@
         padding: 10px;
       }
     }
+  #sendEmailButton.loading {
+    cursor: not-allowed;
+    background-color: gray;
+    color: white;
+  }
   </style>
 </head>
 <body>
@@ -95,95 +101,186 @@
     <a href="https://www.linkedin.com/in/safiqkhan" target="_blank" aria-label="LinkedIn" class="social-badge">
       <i class="fab fa-linkedin"></i> LinkedIn
     </a>
-    <h3>Click button for today's greet</h3>
-
+    <!-- <script src="https://platform.linkedin.com/badges/js/profile.js" async defer type="text/javascript"></script>
+    <div class="badge-base LI-profile-badge" data-locale="en_US" data-size="medium" data-theme="dark" data-type="VERTICAL" data-vanity="safiqkhan" data-version="v1"><a class="badge-base__link LI-simple-link" href="https://in.linkedin.com/in/safiqkhan?trk=profile-badge">Safiquddin Khan</a></div> -->
+    <h3 class="txt-ne">
+      <div id="editable-text" contenteditable="true">Click Execute button for today's greet ⬇️</div>
+    </h3>
     <!-- Checkbox to determine if you want to get the greet body -->
     <div>
       <input type="checkbox" id="getBody" aria-label="Get Greet Body only">
       <label for="getBody">Get GreetBody only</label>
+      <textarea id="inputBody" rows="2" cols="30" placeholder="Enter message (Optional: After 50 words will overwrite defaultbody)" aria-label="Email Body"></textarea>
     </div>
-    
     <!-- Input field for recipient's email -->
-    <input type="email" id="inputRecipient" placeholder="Recipient's Email" aria-label="Recipient's Email">
-    
+    <textarea id="inputRecipient" rows="1" cols="53" placeholder="Recipient's Email(email,name,dob)" aria-label="Recipient's Email" onchange="validateInput()"></textarea>
+    <div id="validationMessage"></div>
     <!-- Button to send the email -->
     <button id="sendEmailButton" aria-label="Execute">Execute</button>
-
+    <a id="PleaseWait" style="display: none;">Please Wait until Popup</a>
     <!-- Add a link element with an initial empty href -->
-    <a id="ExecutionsLink" href="https://script.google.com/home/projects/161G-77Z9OPj-Zg2lwcFmXQI3oOsmYlP6Iw4oPe5QdXJEioul3ITUzvtD/executions" style="display: none;">Executions Status</a>
-
+    <a id="ExecutionsLink" href="https://script.google.com/home/projects/1uQG-f3ul9bPxKAeBDMTvkkgV6nINMUXv2__vFo1ENGcO_K27_R7d9kcw/executions" style="display: none;">Executions Status</a>
+    <a id="successMessage" style="display: none;">Execution Suceess</a>
     <!-- Add a paragraph element to display the log output -->
     <p>Log Output:</p>
     <pre id="logOutput"></pre>
-
     <!-- Add a paragraph element to display errors -->
     <p class="error" id="errorMessage"></p>
   </div>
-
 <script>
   // JavaScript code for handling user interactions
   document.getElementById("sendEmailButton").addEventListener("click", function() {
-    // Get the recipient's email from the input field
+    var sendButton = document.getElementById("sendEmailButton");
     var inputRecipient = document.getElementById("inputRecipient").value;
-    // Check if a valid email is provided
     var getBody = document.getElementById("getBody").checked;
-
-    // Clear any previous errors
-    document.getElementById("errorMessage").textContent = '';
-
-    // Call the server-side function to send the email
+    var inputBody = document.getElementById("inputBody").value;
+    var logMessage = getBody ? "Getting Greet Body..." : "Greet Function Executed, check Log output";
+    var errorMessage = document.getElementById("errorMessage");
+  
+    // Function to send an email and handle success/failure
+    function sendAndHandleEmail(inputRecipient, inputBody, getBody) {
+      sendButton.classList.add("loading"); // Add loading class
+      google.script.run
+        .withSuccessHandler(function(logOutput) {
+          alert(logMessage);
+          document.getElementById("logOutput").textContent = logOutput;
+          showSuccessMessage();
+          sendButton.classList.remove("loading"); // Remove loading class
+        })
+        .withFailureHandler(function(error) {
+          errorMessage.textContent = error;
+          sendButton.classList.remove("loading"); // Remove loading class
+        })
+        .sendEmail(inputRecipient, inputBody, getBody);
+    }
     if (getBody) {
-      google.script.run.withSuccessHandler(function(logOutput) {
-        alert("Getting Greet Body...");
-        document.getElementById("logOutput").textContent = logOutput;
-      }).withFailureHandler(function(error) {
-        document.getElementById("errorMessage").textContent = error;
-      }).sendEmail(inputRecipient,getBody);
-    } 
-    else if(inputRecipient){
-      if (!isValidEmail(inputRecipient)) {
-        document.getElementById("errorMessage").textContent = 'Invalid email address';
+      document.getElementById("PleaseWait").style.display = "block";
+      sendAndHandleEmail(inputRecipient, inputBody ? inputBody : null, true);
+    }
+    else if (inputRecipient){
+      if (!validateInput()) {
+        errorMessage.textContent = 'Invalid Input';
       }
       else {
-        google.script.run.withSuccessHandler(function(logOutput) {
-          alert("Greet Function Executed, check Log output");
-          document.getElementById("logOutput").textContent = logOutput;
-        }).withFailureHandler(function(error) {
-          document.getElementById("errorMessage").textContent = error;
-        }).sendEmail(inputRecipient);
+        document.getElementById("PleaseWait").style.display = "block";
+        sendAndHandleEmail(inputRecipient, inputBody ? inputBody : null, false);
       }
     }
-    // comment this else block for auto execute default value of reciepent
     else {
-      google.script.run.withSuccessHandler(function(logOutput) {
-        alert("Greet Function Executed to all defaul recipents, check Log output");
-        document.getElementById("logOutput").textContent = logOutput;
-      }).withFailureHandler(function(error) {
-        document.getElementById("errorMessage").textContent = error;
-      }).sendEmail(inputRecipient);
+      // errorMessage.textContent = 'Recipient email is required';
+      // uncomment this else block for auto execute default value of recipient
+      errorMessage.textContent = 'No email-id Provided, executing default recipents';
+      sendAndHandleEmail(inputRecipient, inputBody ? inputBody : null, false);
+      document.getElementById("ExecutionsLink").style.display = "block";
     }
-    
-    // Update the link's href attribute when the button is clicked
-    document.getElementById("ExecutionsLink").href = 'https://script.google.com/home/projects/161G-77Z9OPj-Zg2lwcFmXQI3oOsmYlP6Iw4oPe5QdXJEioul3ITUzvtD/executions';
-    document.getElementById("ExecutionsLink").style.display = "block"; 
+    if (errorMessage.textContent === '') {
+      document.getElementById("PleaseWait").style.display = "block";
+    }
   });
+  
+  function showSuccessMessage() {
+    document.getElementById("successMessage").style.display = "block";
+  }
+  
+  function validateInput(input) {
+    var inputElement = document.getElementById("inputRecipient");
+    var validationMessageElement = document.getElementById("validationMessage");
+    var inputText = inputElement.value.trim();
+    var parts = inputText.split(",");
+    var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    var nameRegex = /^[a-zA-Z\s]+$/;
+    var dobRegex = /^\d{4}-\d{2}-\d{2}$/;
+    var isValid = false;
+    if (parts.length === 1) {
+        var email = parts[0].trim();
+        if (emailRegex.test(email)) {
+            isValid = true;
+            message = "Email is valid";
+        } else {
+            message = "Invalid Email";
+        }
+    } else if (parts.length === 2) {
+        var email = parts[0].trim();
+        var name = parts[1].trim();
+        if (emailRegex.test(email) && nameRegex.test(name)) {
+            isValid = true;
+            message = "Email and name are valid";
+        } else {
+            message = "Input are invalid, use email,name";
+        }
+    } else if (parts.length === 3) {
+        var email = parts[0].trim();
+        var name = parts[1].trim();
+        var dob = parts[2].trim();
+        if (emailRegex.test(email) && nameRegex.test(name) && dobRegex.test(dob)) {
+            isValid = true;
+            message = "Email, name, and date of birth are valid";
+        } else {
+            message = "Invalid entry format, Please use email,name,yyyy-mm-dd";
+        }
+    }
+    validationMessageElement.textContent = message;
+    validationMessageElement.style.color = isValid ? "green" : "red";
+    return isValid;
+  }
 
-  // Function to update the quota remaining after sending email
-  function updateQuotaRemaining() {
+
+  // function validateInput(email) {
+  //   var inputElement = document.getElementById("inputRecipient");
+  //   var validationMessageElement = document.getElementById("validationMessage");
+  
+  //   var inputText = inputElement.value.trim();
+  //   var entries = inputText.split(":"); // Split by colon to separate different entries
+  //   var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+  //   var valid = true;
+  
+  //   for (var i = 0; i < entries.length; i++) {
+  //     var parts = entries[i].split(","); // Split each entry by comma
+  //     if (parts.length >= 1) {
+  //       var email = parts[0].trim();
+  //       var name = parts[1].trim();
+  //       var dob = parts[2].trim();
+        
+  //       if (!emailRegex.test(email)) {
+  //         validationMessageElement.textContent = "Email is invalid.";
+  //         validationMessageElement.style.color = "red";
+  //         valid = false;
+  //         break; // Stop processing if an email is invalid
+  //       }
+  //       // You can access the name and dob here
+  //     } else {
+  //       validationMessageElement.textContent = "Invalid entry format. Please use 'email,name,date_of_birth'.";
+  //       validationMessageElement.style.color = "red";
+  //       valid = false;
+  //       break; // Stop processing if the entry format is invalid
+  //     }
+  //   }
+  //   if (valid) {
+  //     validationMessageElement.textContent = "Entries valid.";
+  //     validationMessageElement.style.color = "green";
+  //     return emailRegex.test(email);
+  //   }
+  // }
+
+
+  function checkAnswer(correctAnswer) {
+    var selectedAnswer = document.querySelector('input[name="answer"]:checked');
+    var resultDiv = document.getElementById('result');
+    if (selectedAnswer) {
+      var userAnswer = selectedAnswer.value;
+      resultDiv.innerHTML = userAnswer === correctAnswer ? 'Correct!' : 'Incorrect. The correct answer is: ' + correctAnswer;
+    } else {
+      resultDiv.innerHTML = 'Please select an answer before checking.';
+    }
+  }
+  
+  // Initialize the quota remaining on page load
+  window.onload = function() {
     google.script.run.withSuccessHandler(function(logOutput) {
       document.getElementById("logOutput").textContent = logOutput;
     }).getQuotaRemaining();
-  }
-
-  // Initialize the quota remaining on page load
-  window.onload = function() {
-    updateQuotaRemaining();
   };
-
-  function isValidEmail(email) {
-    var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    return emailRegex.test(email);
-  }
+  
 </script>
 </body>
 </html>
